@@ -119,4 +119,24 @@ export async function appRoute(app: FastifyInstance) {
       });
     }
   });
+
+  app.get("/summary", async (request) => {
+    const summary = await prisma.$queryRaw`
+        SELECT D.id, D.date,
+        (
+            SELECT cast(count(*) as float)
+            FROM days_habits DH
+            WHERE DH.day_id = D.id
+        ) as completed,
+        (
+            SELECT cast(count(*) as float)
+            FROM habist_week_days WWD
+            JOIN habits h
+                ON H.id = HWD.habit_id
+            WHERE WWD.week_day = cast(strftime('%w', D.date/1000.0, 'unixepoch') as int)
+            AND H.created_at <= D.date
+        ) as amount
+        FROM days D
+    `;
+  });
 }

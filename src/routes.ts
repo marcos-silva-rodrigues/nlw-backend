@@ -130,13 +130,15 @@ export async function appRoute(app: FastifyInstance) {
         ) as completed,
         (
             SELECT cast(count(*) as float)
-            FROM habist_week_days WWD
+            FROM habist_week_days HWD
             JOIN habits h
                 ON H.id = HWD.habit_id
-            WHERE WWD.week_day = cast(strftime('%w', D.date/1000.0, 'unixepoch') as int)
+            WHERE HWD.week_day = cast(strftime('%w', D.date/1000.0, 'unixepoch') as int)
             AND H.created_at <= D.date
         ) as amount
         FROM days D
     `;
+
+    return summary;
   });
 }
